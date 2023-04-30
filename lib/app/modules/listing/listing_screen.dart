@@ -1,3 +1,4 @@
+import 'package:bigfoot/app/modules/cart/cart_screen.dart';
 import 'package:bigfoot/app/modules/listing/widgets/filter_item.dart';
 import 'package:bigfoot/app/modules/listing/widgets/search_bar.dart';
 import 'package:bigfoot/app/shared/extensions/context_extensions.dart';
@@ -16,8 +17,32 @@ class ListingScreen extends StatelessWidget {
       "New",
     ];
     return Scaffold(
+      drawer: Drawer(
+        child: ListView(
+          children: [
+            ListTile(
+              title: const Text("Home"),
+              leading: const Icon(Icons.home),
+              onTap: Navigator.of(context).pop,
+            ),
+            ListTile(
+              title: const Text("Cart"),
+              leading: const Icon(Icons.shopping_cart_outlined),
+              onTap: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const CartScreen(),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
       appBar: AppBar(
         title: const Text("Search Products"),
+        centerTitle: false,
       ),
       body: Column(
         children: [
@@ -45,7 +70,7 @@ class ListingScreen extends StatelessWidget {
               child: GridView.builder(
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
-                  childAspectRatio: 1.5 / 3,
+                  childAspectRatio: 1.5 / 2,
                   crossAxisSpacing: 10,
                   mainAxisSpacing: 30,
                 ),
@@ -74,7 +99,10 @@ class ListingScreen extends StatelessWidget {
                                 letterSpacing: -1,
                               ),
                             ),
-                            const Spacer(),
+                            Expanded(
+                              child: Image.network(
+                                  "https://www.pngall.com/wp-content/uploads/13/Nike-Shoes-PNG-Cutout.png"),
+                            ),
                             Align(
                               alignment: Alignment.bottomLeft,
                               child: Text(
