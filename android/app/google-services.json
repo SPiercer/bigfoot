@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "273461745269",
+    "project_id": "bigfoot-97107",
+    "storage_bucket": "bigfoot-97107.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:273461745269:android:340cf7bc8b4f274ec50a3c",
+        "android_client_info": {
+          "package_name": "com.bigfoot.poc.bigfoot"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "273461745269-s17ktr98jpalmfushp4k880f36hhu2oe.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDMjllO7HYpP-IYiRonof_dDNAWeTaGXRQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "273461745269-s17ktr98jpalmfushp4k880f36hhu2oe.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
