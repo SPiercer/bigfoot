@@ -23,8 +23,8 @@ class FilterItem extends StatelessWidget {
         child: Text(
           item,
           style: TextStyle(
-            color: item == "All"
-                ? context.colorScheme.onErrorContainer
+            color: item == "All" ?
+            context.colorScheme.onErrorContainer
                 : context.colorScheme.surface,
           ),
         ),

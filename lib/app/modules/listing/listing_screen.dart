@@ -3,9 +3,12 @@ import 'package:bigfoot/app/modules/listing/widgets/filter_item.dart';
 import 'package:bigfoot/app/modules/listing/widgets/search_bar.dart';
 import 'package:bigfoot/app/modules/product/product_screen.dart';
 import 'package:bigfoot/app/shared/extensions/context_extensions.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart' hide SearchBar;
+import 'package:firebase_ui_firestore/firebase_ui_firestore.dart';
 
 class ListingScreen extends StatelessWidget {
+
   const ListingScreen({super.key});
 
   @override
@@ -71,96 +74,125 @@ class ListingScreen extends StatelessWidget {
               },
             ),
           ),
+
           Expanded(
             child: Container(
               margin: const EdgeInsets.all(20),
-              child: GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 1.5 / 2,
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 30,
-                ),
-                itemBuilder: (context, index) {
-                  return Stack(
-                    alignment: Alignment.bottomRight,
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          color: context.colorScheme.onBackground,
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color: context.colorScheme.outline,
-                            width: 1,
-                          ),
-                        ),
-                        padding: const EdgeInsets.all(12),
-                        child: Column(
-                          children: [
-                            Text(
-                              "Air Max 270 React",
-                              style: TextStyle(
-                                color: context.colorScheme.surface,
-                                fontSize: 26,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: -1,
+              child: FirestoreQueryBuilder(
+                pageSize: 10,
+                query: FirebaseFirestore
+                    .instance
+                    .collection("products")
+                    .orderBy('name')
+                  ,
+                builder: (
+                    BuildContext ctx,
+                    FirestoreQueryBuilderSnapshot<Map<String, dynamic>> snap,
+                    child) {
+
+
+
+                  return GridView.builder(
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      childAspectRatio: 1.5 / 2,
+                      crossAxisSpacing: 10,
+                      mainAxisSpacing: 30,
+                    ),
+                    itemCount: snap.docs.length,
+                    itemBuilder: (context, index) {
+
+                      if (snap.hasMore && index+1 == snap.docs.length) {
+                        snap.fetchMore();
+                      }
+
+                      final product = snap.docs[index].data();
+
+                      return Stack(
+                        alignment: Alignment.bottomRight,
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              color: context.colorScheme.onBackground,
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: context.colorScheme.outline,
+                                width: 1,
                               ),
                             ),
-                            Expanded(
-                              child: Image.network(
-                                  "https://www.pngall.com/wp-content/uploads/13/Nike-Shoes-PNG-Cutout.png"),
+                            padding: const EdgeInsets.all(12),
+                            child: Column(
+                              children: [
+                                Text(
+                                  product['name']?? '',
+                                  style: TextStyle(
+                                    color: context.colorScheme.surface,
+                                    fontSize: 26,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: -1,
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Image.network(product['image']),
+                                ),
+                                Align(
+                                  alignment: Alignment.bottomLeft,
+                                  child: Text(
+                                    "\$ ${product['price']}",
+                                    style: TextStyle(
+                                      color: context.colorScheme.surface,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: -1,
+                                    ),
+                                  ),
+                                )
+                              ],
                             ),
-                            Align(
-                              alignment: Alignment.bottomLeft,
-                              child: Text(
-                                "\$ 200",
-                                style: TextStyle(
-                                  color: context.colorScheme.surface,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: -1,
+                          ),
+                          Container(
+                            width: 60,
+                            height: 60,
+                            decoration: BoxDecoration(
+                              color: context.colorScheme.surface,
+                              border: Border.all(
+                                color: context.colorScheme.outline,
+                                width: 1,
+                              ),
+                              borderRadius: BorderRadius.circular(10) -
+                                  const BorderRadius.only(
+                                    topRight: Radius.circular(20),
+                                    bottomLeft: Radius.circular(20),
+                                  ),
+                            ),
+                            child: IconButton(
+                              onPressed: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => ProductScreen(
+                                    product: product,
+                                  ),
                                 ),
                               ),
-                            )
-                          ],
-                        ),
-                      ),
-                      Container(
-                        width: 60,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          color: context.colorScheme.surface,
-                          border: Border.all(
-                            color: context.colorScheme.outline,
-                            width: 1,
-                          ),
-                          borderRadius: BorderRadius.circular(10) -
-                              const BorderRadius.only(
-                                topRight: Radius.circular(20),
-                                bottomLeft: Radius.circular(20),
+                              icon: const Icon(
+                                Icons.arrow_forward_ios,
+                                color: Colors.white,
                               ),
-                        ),
-                        child: IconButton(
-                          onPressed: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const ProductScreen(),
                             ),
                           ),
-                          icon: const Icon(
-                            Icons.arrow_forward_ios,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ],
+                        ],
+                      );
+                    },
                   );
-                },
+                }
               ),
             ),
-          )
+          ),
+
+
         ],
       ),
     );
   }
+
 }
