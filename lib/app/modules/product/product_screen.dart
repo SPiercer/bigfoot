@@ -134,7 +134,7 @@ class ProductScreen extends StatelessWidget {
                         ],
                       ),
                       Text(
-                        r"$99.99",
+                        r"E£99.99",
                         style: TextStyle(
                           color: context.colorScheme.background,
                           fontSize: 32,

@@ -3,7 +3,7 @@ import 'package:bigfoot/app/modules/listing/widgets/filter_item.dart';
 import 'package:bigfoot/app/modules/listing/widgets/search_bar.dart';
 import 'package:bigfoot/app/modules/product/product_screen.dart';
 import 'package:bigfoot/app/shared/extensions/context_extensions.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide SearchBar;
 
 class ListingScreen extends StatelessWidget {
   const ListingScreen({super.key});
@@ -18,6 +18,12 @@ class ListingScreen extends StatelessWidget {
       "New",
     ];
     return Scaffold(
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {},
+        backgroundColor: context.colorScheme.errorContainer,
+        icon: const Icon(Icons.design_services_outlined),
+        label: const Text('Create your own'),
+      ),
       drawer: Drawer(
         child: ListView(
           children: [
