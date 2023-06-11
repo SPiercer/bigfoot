@@ -1,27 +1,22 @@
-import 'package:bigfoot/app/modules/listing/listing_screen.dart';
 import 'package:flutter/material.dart';
 
 class SplashScreen extends StatefulWidget {
-
   const SplashScreen({super.key});
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
-
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-
-  static const link = "https://www.highsnobiety.com/static-assets/thumbor/eEKDSVrNGQS7aopfBVSKVPgxqfE=/1600x2400/www.highsnobiety.com/static-assets/wp-content/uploads/2022/07/27171551/new-balance-thisisneverthat-fw22-collab-003.jpg";
+  static const link =
+      "https://www.highsnobiety.com/static-assets/thumbor/eEKDSVrNGQS7aopfBVSKVPgxqfE=/1600x2400/www.highsnobiety.com/static-assets/wp-content/uploads/2022/07/27171551/new-balance-thisisneverthat-fw22-collab-003.jpg";
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       body: Stack(
         fit: StackFit.expand,
         children: [
-
           ///
           Image.network(link, fit: BoxFit.fill),
 
@@ -63,10 +58,7 @@ class _SplashScreenState extends State<SplashScreen> {
             alignment: Alignment.bottomCenter,
             child: TextButton(
               onPressed: () {
-                Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const ListingScreen()));
+                Navigator.pushReplacementNamed(context, '/listing');
               },
               style: TextButton.styleFrom(
                 foregroundColor: Colors.blueGrey[100],
@@ -82,11 +74,8 @@ class _SplashScreenState extends State<SplashScreen> {
               child: const Text("Let's Get Started"),
             ),
           ),
-
         ],
       ),
     );
-
   }
-
 }

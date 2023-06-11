@@ -1,48 +1,41 @@
-import 'package:bigfoot/app/modules/cart/cart_screen.dart';
+import 'package:bigfoot/app/modules/chat/models/chat.dart';
 import 'package:bigfoot/app/shared/bloc/cart_bloc.dart';
 import 'package:bigfoot/app/shared/extensions/context_extensions.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ProductScreen extends StatefulWidget {
-
-  const ProductScreen({
-    required this.product,
-    super.key
-  });
-
-  final Map<String, dynamic> product;
+  const ProductScreen({super.key});
 
   @override
   State<ProductScreen> createState() => _ProductScreenState();
 }
 
 class _ProductScreenState extends State<ProductScreen> {
-
+  late final product =
+      ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>;
   int selectedIndex = -1;
 
   static const List<String> sizes = [
-    's',
-    'm',
-    'L',
-    'XL',
-    'XXL',
+    '39',
+    '40',
+    '41',
+    '42',
+    '43',
   ];
 
   @override
   Widget build(BuildContext context) {
-
-
     return Scaffold(
       body: Column(
         children: [
-
           /// UPPER BOX
           Expanded(
             flex: 4,
             child: Stack(
               children: [
-
                 /// BACKGROUND
                 Container(
                   decoration: const BoxDecoration(
@@ -62,7 +55,6 @@ class _ProductScreenState extends State<ProductScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-
                       /// TM LOGO
                       Container(
                         width: 60,
@@ -111,8 +103,6 @@ class _ProductScreenState extends State<ProductScreen> {
                       //     ),
                       //   ),
                       // ),
-
-
                     ],
                   ),
                 ),
@@ -141,12 +131,11 @@ class _ProductScreenState extends State<ProductScreen> {
 
                 /// PRODUCT IMAGE
                 Positioned(
-                  top: context.screenSize.height * .2,
-                  left: 30,
-                  right: context.screenSize.width * .25,
-                  bottom: context.screenSize.height * .1,
-                    child: Image.network(widget.product['image'])
-                ),
+                    top: context.screenSize.height * .2,
+                    left: 30,
+                    right: context.screenSize.width * .25,
+                    bottom: context.screenSize.height * .1,
+                    child: Image.network(product['image'])),
 
                 /// LIKE BUTTON
                 Positioned(
@@ -160,7 +149,7 @@ class _ProductScreenState extends State<ProductScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            widget.product['name'],
+                            product['name'],
                             style: TextStyle(
                               color: context.colorScheme.background,
                               fontSize: 32,
@@ -181,7 +170,7 @@ class _ProductScreenState extends State<ProductScreen> {
                         ],
                       ),
                       Text(
-                        "E£${widget.product['price']}",
+                        "E£${product['price']}",
                         style: TextStyle(
                           color: context.colorScheme.background,
                           fontSize: 32,
@@ -192,7 +181,6 @@ class _ProductScreenState extends State<ProductScreen> {
                     ],
                   ),
                 ),
-
               ],
             ),
           ),
@@ -207,7 +195,6 @@ class _ProductScreenState extends State<ProductScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-
                     ///
                     const Text(
                       "Description",
@@ -217,7 +204,7 @@ class _ProductScreenState extends State<ProductScreen> {
                       ),
                     ),
                     Text(
-                      widget.product['desc'],
+                      product['desc'],
                       style: const TextStyle(fontSize: 12, height: 1.2),
                     ),
                     const SizedBox(height: 16),
@@ -238,23 +225,22 @@ class _ProductScreenState extends State<ProductScreen> {
                         itemCount: 5,
                         scrollDirection: Axis.horizontal,
                         itemBuilder: (_, index) {
-
                           final selected = index == selectedIndex;
 
                           return InkWell(
                             onTap: () async {
-
                               setState(() {
                                 selectedIndex = index;
                               });
-
                             },
                             child: Container(
                               margin: const EdgeInsets.symmetric(horizontal: 2),
                               height: 60,
                               width: 60,
                               decoration: BoxDecoration(
-                                color: selected ? context.colorScheme.errorContainer : null,
+                                color: selected
+                                    ? context.colorScheme.errorContainer
+                                    : null,
                                 border: Border.all(
                                   color: Colors.white,
                                   width: 1,
@@ -272,20 +258,63 @@ class _ProductScreenState extends State<ProductScreen> {
 
                     Row(
                       children: [
-
                         /// CHAT BUTTON
-                        Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 2),
-                          height: 60,
-                          width: 60,
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: Colors.white,
-                              width: 1,
+                        InkWell(
+                          onTap: () async {
+                            // check if user already has a chat with us
+                            final query = await FirebaseFirestore.instance
+                                .collection('chats')
+                                .where('clientId',
+                                    isEqualTo:
+                                        FirebaseAuth.instance.currentUser!.uid)
+                                .get();
+
+                            if (query.docs.isNotEmpty) {
+                              if (context.mounted) {
+                                Navigator.of(context)
+                                    .pushNamed('/chat', arguments: {
+                                  'productName': product['name'],
+                                  'chatId': query.docs.first.id,
+                                });
+                              }
+                              return;
+                            }
+
+                            final chat = Chat(
+                              clientId: FirebaseAuth.instance.currentUser!.uid,
+                              clientName:
+                                  FirebaseAuth.instance.currentUser?.email ??
+                                      '',
+                              productId: product['name'],
+                              lastMessage: null,
+                            );
+
+                            final doc = await FirebaseFirestore.instance
+                                .collection('chats')
+                                .add(chat.toJson());
+
+                            if (context.mounted) {
+                              Navigator.of(context)
+                                  .pushNamed('/chat', arguments: {
+                                'productName': product['name'],
+                                'chatId': doc.id,
+                              });
+                            }
+                          },
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 2),
+                            height: 60,
+                            width: 60,
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: Colors.white,
+                                width: 1,
+                              ),
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                            borderRadius: BorderRadius.circular(10),
+                            child:
+                                const Center(child: Icon(Icons.chat_outlined)),
                           ),
-                          child: const Center(child: Icon(Icons.chat_outlined)),
                         ),
 
                         /// SPACING
@@ -295,14 +324,12 @@ class _ProductScreenState extends State<ProductScreen> {
                         Expanded(
                           child: TextButton(
                             onPressed: () {
-
                               final cart = context.read<CartCubit>();
-                              cart.addToCart(product: widget.product);
+                              product['size'] = sizes[selectedIndex];
+                              cart.addToCart(product);
 
-                              Navigator.of(context).pushReplacement(MaterialPageRoute(
-                                  builder: (_) => const CartScreen(),
-                              ));
-
+                              Navigator.of(context)
+                                  .pushReplacementNamed('/cart');
                             },
                             style: TextButton.styleFrom(
                               shape: RoundedRectangleBorder(
@@ -314,13 +341,12 @@ class _ProductScreenState extends State<ProductScreen> {
                               padding: EdgeInsets.symmetric(vertical: 18.0),
                               child: Text(
                                 "Add to cart",
-                                style:
-                                TextStyle(fontSize: 18, color: Colors.white),
+                                style: TextStyle(
+                                    fontSize: 18, color: Colors.white),
                               ),
                             ),
                           ),
                         ),
-
                       ],
                     ),
                     const SizedBox(height: 8),
@@ -329,10 +355,8 @@ class _ProductScreenState extends State<ProductScreen> {
               ),
             ),
           ),
-
         ],
       ),
     );
   }
-
 }
